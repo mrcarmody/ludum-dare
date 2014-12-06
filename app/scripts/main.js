@@ -2,6 +2,52 @@ var stageSizeX = 800;
 var stageSizeY = 600;
 var prize = 'Index';
 
+PIXI.Sprite.prototype.move = function (dir, speed) {
+    var actor = this;
+    if (actor.isDead || !dir || !speed) {
+        return false;
+    }
+    // make sure the actor is not leaving the screen
+    if (dir === 'x') {
+        if (actor.position.x + speed < 0 ||
+            actor.position.x + actor.width + speed > stageSizeX) {
+            return false;
+        }
+    } else if (dir === 'y') {
+        if (actor.position.y + speed < 0 ||
+            actor.position.y + actor.height + speed > stageSizeY) {
+            return false;
+        }
+    } else {
+        // bad dir
+        return false;
+    }
+
+    // make the move
+    actor.position[dir] += speed;
+};
+
+PIXI.Sprite.prototype.didIntersect = function (otherGuy) {
+    var actor = this;
+
+    isIntersecting = function(r1, r2) {
+        return !(r2.x > (r1.x + r1.width) ||
+            (r2.x + r2.width) < r1.x ||
+            r2.y > (r1.y + r1.height) ||
+            (r2.y + r2.height) < r1.y);
+    };
+
+    return !!isIntersecting(actor, otherGuy);
+};
+
+
+PIXI.Sprite.prototype.die = function (stage) {
+    var actor = this;
+
+    actor.isDead = true;
+    stage.removeChild(actor);
+};
+
 // You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
 var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
 
@@ -57,32 +103,61 @@ prize.scale.y = 0.75;
 stage.addChild(prize);
 
 
-function moveboss() {
-    // Random
-    var rand;
-    var dir = 'y';
-    var speed = 5;
-    rand = Math.random();
-    if (rand < 0.25) {
-        dir = 'x';
-    } else if (rand < 0.5) {
-        dir = 'x';
-        speed = speed * -1;
-    } else if (rand < 0.75) {
-        dir = 'y';
-    } else if (rand < 1) {
-        dir = 'y';
-        speed = speed * -1;
+function moveboss(AI) {
+    var dir;
+    var speed = 1;
+
+    if (AI === 'aggressive') {
+        var manX = boss.position.x - man.position.x;
+        var manY = boss.position.y - man.position.y;
+
+        if (Math.abs(manX) > Math.abs(manY)) {
+            dir = 'x';
+            speed = speed * (manX / Math.abs(manX)) * -1;
+        } else {
+            dir = 'y';
+            speed = speed * (manY / Math.abs(manY)) * -1;
+        }
+    } else if (AI === 'defensive'){
+        var manX = boss.position.x - man.position.x;
+        var manY = boss.position.y - man.position.y;
+
+        if (Math.abs(manX) > Math.abs(manY)){
+            dir = 'x';
+            speed = speed * (manX / Math.abs(manX));
+        } else {
+            dir = 'y';
+            speed = speed * (manY / Math.abs(manY));
+        }
+    } else {
+        // random
+        var rand;
+        rand = Math.random();
+        if (rand < 0.25) {
+            dir = 'x';
+        } else if (rand < 0.5) {
+            dir = 'x';
+            speed = speed * -1;
+        } else if (rand < 0.75) {
+            dir = 'y';
+        } else if (rand < 1) {
+            dir = 'y';
+            speed = speed * -1;
+        }
     }
 
-    moveActor(boss,dir,speed);
+    boss.move(dir,speed);
 }
 
 requestAnimationFrame(animate);
 
 function animate() {
 
-    moveboss();
+    moveboss('aggressive');
+
+    if (boss.didIntersect(man)){
+        man.die(stage);
+    }
 
     renderer.render(stage);
 
@@ -133,15 +208,12 @@ document.addEventListener('keydown', function(event) {
             return;
     }
 
-    moveActor(man,dir,speed);
+    man.move(dir,speed);
+    if (man.didIntersect(prize)){
+        boss.die(stage);
+    }
 });
 
-isIntersecting = function(r1, r2) {
-    return !(r2.x > (r1.x + r1.width) ||
-        (r2.x + r2.width) < r1.x ||
-        r2.y > (r1.y + r1.height) ||
-        (r2.y + r2.height) < r1.y);
-};
 
 speak = function(actor,phrase){
     phrase.position.x = actor.position.x + actor.width + 3;
@@ -149,36 +221,4 @@ speak = function(actor,phrase){
     stage.addChild(phrase);
 };
 
-moveActor = function(actor,dir,speed){
-    // make sure the actor is not leaving the screen
-    if (dir === 'x'){
-        if (actor.position.x + speed < 0 ||
-            actor.position.x + actor.width + speed > stageSizeX){
-            return false;
-        }
-    } else if (dir === 'y'){
-        if (actor.position.y + speed < 0 ||
-            actor.position.y + actor.height + speed > stageSizeY){
-            return false;
-        }
-    } else {
-        // bad dir
-        return false;
-    }
-    // check for collision with the boss
-    /*
-    if (isIntersecting(actor, boss)){
-        speed = speed * -2 >= 30 ? speed * -2 : 30;
-        //speak(actor,sadTalk[0]);
-    };
-    */
 
-    // make the move
-    actor.position[dir] += speed;
-
-    // check for collision with the prize
-    if (isIntersecting(actor, prize)){
-        speak(actor,happyTalk[0]);
-    };
-
-};
