@@ -1,0 +1,7 @@
+{
+  "name": "ludum-dare",
+  "private": true,
+  "dependencies": {
+    "pixi.js": "~2.1.1"
+  }
+}
