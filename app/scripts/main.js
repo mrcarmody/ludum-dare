@@ -220,6 +220,10 @@ movePeons = function(AI) {
         var peon = peons[i];
         var move = AIcallback(AI,peon,man);
         peon.move(move.dir, move.speed);
+
+        if (peon.didIntersect(man)){
+            man.die(stage);
+        }
     }
 };
 
