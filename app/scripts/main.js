@@ -61,7 +61,7 @@ placePrize = function() {
     if (x > stageSizeX / 2) {
         prize.position.x = 10;
     } else {
-        prize.position.x = stageSizeX - 100 - (prize.width*2);
+        prize.position.x = stageSizeX - 150 - (prize.width*2);
     }
     if (y > stageSizeY / 2) {
         prize.position.y = 10;
@@ -101,7 +101,7 @@ placeBoss = function() {
     if (x > stageSizeX / 2) {
         boss.position.x = 100;
     } else {
-        boss.position.x = stageSizeX - 150;
+        boss.position.x = stageSizeX - 175;
     }
     if (y > stageSizeY / 2) {
         boss.position.y = 100;
@@ -173,6 +173,7 @@ var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
 document.body.appendChild(renderer.view);
 
 var stage = new PIXI.Stage;
+//var stage = new PIXI.Stage(0X86c1f4);
 
 var text = new PIXI.Text("Score: "+score,{font:"30px Arial", fill:"yellow"});
 text.position.x = 10;
@@ -187,14 +188,14 @@ var sadTalk = [];
 sadTalk.push(new PIXI.Text("No :(",{font:"20px Arial", fill:"yellow"}));
 
 
-var manTexture = PIXI.Texture.fromImage("images/rMan.png");
+var manTexture = PIXI.Texture.fromImage("images/radMan.png");
 var man = new PIXI.Sprite(manTexture);
 
 man.position.x = 100;
-man.position.y = 500;
+man.position.y = 450;
 
-man.scale.x = 0.5;
-man.scale.y = 0.5;
+man.scale.x = 0.2;
+man.scale.y = 0.2;
 
 man.speed = 5;
 stage.addChild(man);
@@ -202,8 +203,8 @@ stage.addChild(man);
 var bossTexture = PIXI.Texture.fromImage("images/boss.png");
 var boss = new PIXI.Sprite(bossTexture);
 
-boss.scale.x = 0.75;
-boss.scale.y = 0.75;
+boss.scale.x = 0.6;
+boss.scale.y = 0.6;
 
 placeBoss();
 
@@ -285,7 +286,7 @@ moveMan = function() {
 
     if (man.didIntersect(prize)){
         updateScore();
-        man.speed += 5;
+        man.speed += 2;
         boss.die(stage);
         stage.removeChild(prize);
         placePrize();
