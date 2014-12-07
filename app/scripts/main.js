@@ -1,6 +1,7 @@
 var stageSizeX = 800;
 var stageSizeY = 600;
 var prize = 'Index';
+var score = 0;
 
 PIXI.Sprite.prototype.move = function (dir, speed) {
     var actor = this;
@@ -48,6 +49,50 @@ PIXI.Sprite.prototype.die = function (stage) {
     stage.removeChild(actor);
 };
 
+placePrize = function() {
+    var x = man.position.x;
+    var y = man.position.y;
+
+    if (x > stageSizeX / 2) {
+        prize.position.x = 10;
+    } else {
+        prize.position.x = stageSizeX - 100;
+    }
+    if (y > stageSizeY / 2) {
+        prize.position.y = 10;
+    } else {
+        prize.position.y = stageSizeY - 100;
+    }
+
+    stage.addChild(prize);
+};
+
+placeBoss = function() {
+    var x = man.position.x;
+    var y = man.position.y;
+
+    if (x > stageSizeX / 2) {
+        boss.position.x = 100;
+    } else {
+        boss.position.x = stageSizeX - 150;
+    }
+    if (y > stageSizeY / 2) {
+        boss.position.y = 100;
+    } else {
+        boss.position.y = stageSizeY - 150;
+    }
+
+    boss.isDead = false;
+    stage.addChild(boss);
+};
+
+updateScore = function() {
+    score++;
+    text.setText("Score: "+score);
+};
+
+// You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
+var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
 // You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
 var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
 
@@ -55,7 +100,7 @@ document.body.appendChild(renderer.view);
 
 var stage = new PIXI.Stage;
 
-var text = new PIXI.Text("Acquire the "+prize+"!!",{font:"30px Arial", fill:"yellow"});
+var text = new PIXI.Text("Score: "+score,{font:"30px Arial", fill:"yellow"});
 text.position.x = 10;
 text.position.y = 10;
 
@@ -82,25 +127,17 @@ stage.addChild(man);
 var bossTexture = PIXI.Texture.fromImage("images/boss.png");
 var boss = new PIXI.Sprite(bossTexture);
 
-boss.position.x = 520;
-boss.position.y = 100;
-
 boss.scale.x = 0.75;
 boss.scale.y = 0.75;
 
-stage.addChild(boss);
-
+placeBoss();
 
 var prizeTexture = PIXI.Texture.fromImage("images/prize.png");
 var prize = new PIXI.Sprite(prizeTexture);
-
-prize.position.x = 650;
-prize.position.y = 10;
-
 prize.scale.x = 0.75;
 prize.scale.y = 0.75;
 
-stage.addChild(prize);
+placePrize();
 
 
 function moveboss(AI) {
@@ -210,7 +247,11 @@ document.addEventListener('keydown', function(event) {
 
     man.move(dir,speed);
     if (man.didIntersect(prize)){
+        updateScore();
         boss.die(stage);
+        stage.removeChild(prize);
+        placePrize();
+        placeBoss();
     }
 });
 
@@ -220,5 +261,4 @@ speak = function(actor,phrase){
     phrase.position.y = actor.position.y - 10;
     stage.addChild(phrase);
 };
-
 
