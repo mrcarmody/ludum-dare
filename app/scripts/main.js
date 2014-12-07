@@ -192,6 +192,7 @@ man.position.y = 500;
 man.scale.x = 0.5;
 man.scale.y = 0.5;
 
+man.speed = 15;
 stage.addChild(man);
 
 var bossTexture = PIXI.Texture.fromImage("images/boss.png");
@@ -215,10 +216,15 @@ function moveboss(AI) {
     boss.move(move.dir,move.speed);
 };
 
-movePeons = function(AI) {
+movePeons = function() {
     for(var i=0;i<peons.length;i++) {
         var peon = peons[i];
-        var move = AIcallback(AI,peon,man);
+        var move;
+        if (i!=0 && i%5===0){
+            move = AIcallback('aggressive',peon,man);
+        } else {
+            move = AIcallback('random',peon,man);
+        }
         peon.move(move.dir, move.speed);
 
         if (peon.didIntersect(man)){
@@ -239,7 +245,7 @@ document.addEventListener('keydown', function(event) {
         isShift = event.shiftKey ? true : false;
     }
 
-    var speed = 10;
+    var speed = man.speed;
     var dir = 'y';
     if (isShift){
         speed = speed * 2;
@@ -274,6 +280,7 @@ document.addEventListener('keydown', function(event) {
     man.move(dir,speed);
     if (man.didIntersect(prize)){
         updateScore();
+        man.speed += 5;
         boss.die(stage);
         stage.removeChild(prize);
         placePrize();
@@ -292,7 +299,7 @@ requestAnimationFrame(animate);
 
 function animate() {
 
-    movePeons('random');
+    movePeons();
     moveboss('aggressive');
 
     if (boss.didIntersect(man)){
