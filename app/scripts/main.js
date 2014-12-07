@@ -54,10 +54,14 @@ placePrize = function() {
     var x = man.position.x;
     var y = man.position.y;
 
+    var rand = parseInt(Math.random() * 100 / 33) + 1;
+    var prizeTexture = PIXI.Texture.fromImage("images/prize"+rand+".png");
+    prize.setTexture(prizeTexture);
+
     if (x > stageSizeX / 2) {
         prize.position.x = 10;
     } else {
-        prize.position.x = stageSizeX - 100;
+        prize.position.x = stageSizeX - 100 - (prize.width*2);
     }
     if (y > stageSizeY / 2) {
         prize.position.y = 10;
@@ -205,8 +209,8 @@ placeBoss();
 
 var prizeTexture = PIXI.Texture.fromImage("images/prize.png");
 var prize = new PIXI.Sprite(prizeTexture);
-prize.scale.x = 0.75;
-prize.scale.y = 0.75;
+prize.scale.x = 0.5;
+prize.scale.y = 0.5;
 
 placePrize();
 
