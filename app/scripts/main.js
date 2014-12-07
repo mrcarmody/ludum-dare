@@ -192,7 +192,7 @@ man.position.y = 500;
 man.scale.x = 0.5;
 man.scale.y = 0.5;
 
-man.speed = 15;
+man.speed = 5;
 stage.addChild(man);
 
 var bossTexture = PIXI.Texture.fromImage("images/boss.png");
@@ -233,6 +233,63 @@ movePeons = function() {
     }
 };
 
+// Catch input from the user (keyboard)
+var map = [];
+mapKeys = function(e) {
+    var isShift;
+
+    if (window.event) {
+        key = window.event.keyCode;
+        isShift = window.event.shiftKey ? true : false;
+    } else {
+        key = e.which;
+        isShift = e.shiftKey ? true : false;
+    }
+
+    if (isShift) {
+        speed = speed * 2;
+    }
+
+    e = e || event; // to deal with IE
+    map[e.keyCode] = e.type == 'keydown';
+};
+
+document.addEventListener('keydown', mapKeys);
+document.addEventListener('keyup', mapKeys);
+
+moveMan = function() {
+    var speed = man.speed;
+    var x;
+    var y;
+
+    // left and right (or right and left???)
+    if (map[37]) {
+        x = speed * -1;
+    } else if (map[39]) {
+        x = speed;
+    }
+
+    // Up and down arrows
+    if (map[38]) {
+        y = speed * -1;
+    } else if (map[40]) {
+        y = speed;
+    }
+
+    man.move('x',x);
+    man.move('y',y);
+
+    if (man.didIntersect(prize)){
+        updateScore();
+        man.speed += 5;
+        boss.die(stage);
+        stage.removeChild(prize);
+        placePrize();
+        placeBoss();
+    }
+};
+
+/*
 // Catch input from the user (keyboard)
 document.addEventListener('keydown', function(event) {
     var isShift;
@@ -287,7 +344,7 @@ document.addEventListener('keydown', function(event) {
         placeBoss();
     }
 });
-
+*/
 
 speak = function(actor,phrase){
     phrase.position.x = actor.position.x + actor.width + 3;
@@ -299,6 +356,7 @@ requestAnimationFrame(animate);
 
 function animate() {
 
+    moveMan();
     movePeons();
     moveboss('aggressive');
 
