@@ -194,8 +194,8 @@ var man = new PIXI.Sprite(manTexture);
 man.position.x = 100;
 man.position.y = 450;
 
-man.scale.x = 0.2;
-man.scale.y = 0.2;
+man.scale.x = 0.17;
+man.scale.y = 0.17;
 
 man.speed = 5;
 stage.addChild(man);
