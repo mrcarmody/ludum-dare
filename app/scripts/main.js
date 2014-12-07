@@ -2,6 +2,7 @@ var stageSizeX = 800;
 var stageSizeY = 600;
 var prize = 'Index';
 var score = 0;
+var peons = [];
 
 PIXI.Sprite.prototype.move = function (dir, speed) {
     var actor = this;
@@ -67,6 +68,28 @@ placePrize = function() {
     stage.addChild(prize);
 };
 
+placePeon = function () {
+    var peonTexture = PIXI.Texture.fromImage("images/boss.png");
+    var peon = new PIXI.Sprite(peonTexture);
+
+    peon.scale.x = 0.25;
+    peon.scale.y = 0.25;
+
+    peon.position.x = boss.position.x;
+    peon.position.y = boss.position.y;
+
+    peon.speed = 1;
+
+    stage.addChild(peon);
+    peons.push(peon);
+}
+
+deployPeons = function(num) {
+    for(var i=0;i<num;i++){
+        placePeon();
+    }
+};
+
 placeBoss = function() {
     var x = man.position.x;
     var y = man.position.y;
@@ -83,7 +106,9 @@ placeBoss = function() {
     }
 
     boss.isDead = false;
+    boss.speed = 1;
     stage.addChild(boss);
+    deployPeons(score);
 };
 
 updateScore = function() {
@@ -91,6 +116,51 @@ updateScore = function() {
     text.setText("Score: "+score);
 };
 
+AIcallback = function(AI,actor,antagonist) {
+    var speed = actor.speed;
+    var dir;
+
+    if (AI === 'aggressive') {
+        var antagonistX = actor.position.x - antagonist.position.x;
+        var antagonistY = actor.position.y - antagonist.position.y;
+
+        if (Math.abs(antagonistX) > Math.abs(antagonistY)) {
+            dir = 'x';
+            speed = speed * (antagonistX / Math.abs(antagonistX)) * -1;
+        } else {
+            dir = 'y';
+            speed = speed * (antagonistY / Math.abs(antagonistY)) * -1;
+        }
+    } else if (AI === 'defensive'){
+        var antagonistX = actor.position.x - antagonist.position.x;
+        var antagonistY = actor.position.y - antagonist.position.y;
+
+        if (Math.abs(antagonistX) > Math.abs(antagonistY)){
+            dir = 'x';
+            speed = speed * (antagonistX / Math.abs(antagonistX));
+        } else {
+            dir = 'y';
+            speed = speed * (antagonistY / Math.abs(antagonistY));
+        }
+    } else {
+        // random
+        var rand;
+        rand = Math.random();
+        if (rand < 0.25) {
+            dir = 'x';
+        } else if (rand < 0.5) {
+            dir = 'x';
+            speed = speed * -1;
+        } else if (rand < 0.75) {
+            dir = 'y';
+        } else if (rand < 1) {
+            dir = 'y';
+            speed = speed * -1;
+        }
+    }
+    
+    return {dir:dir,speed:speed};
+}
 // You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
 var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
 // You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
@@ -139,67 +209,19 @@ prize.scale.y = 0.75;
 
 placePrize();
 
-
 function moveboss(AI) {
-    var dir;
-    var speed = 1;
+    var move = AIcallback(AI,boss,man);
 
-    if (AI === 'aggressive') {
-        var manX = boss.position.x - man.position.x;
-        var manY = boss.position.y - man.position.y;
+    boss.move(move.dir,move.speed);
+};
 
-        if (Math.abs(manX) > Math.abs(manY)) {
-            dir = 'x';
-            speed = speed * (manX / Math.abs(manX)) * -1;
-        } else {
-            dir = 'y';
-            speed = speed * (manY / Math.abs(manY)) * -1;
-        }
-    } else if (AI === 'defensive'){
-        var manX = boss.position.x - man.position.x;
-        var manY = boss.position.y - man.position.y;
-
-        if (Math.abs(manX) > Math.abs(manY)){
-            dir = 'x';
-            speed = speed * (manX / Math.abs(manX));
-        } else {
-            dir = 'y';
-            speed = speed * (manY / Math.abs(manY));
-        }
-    } else {
-        // random
-        var rand;
-        rand = Math.random();
-        if (rand < 0.25) {
-            dir = 'x';
-        } else if (rand < 0.5) {
-            dir = 'x';
-            speed = speed * -1;
-        } else if (rand < 0.75) {
-            dir = 'y';
-        } else if (rand < 1) {
-            dir = 'y';
-            speed = speed * -1;
-        }
+movePeons = function(AI) {
+    for(var i=0;i<peons.length;i++) {
+        var peon = peons[i];
+        var move = AIcallback(AI,peon,man);
+        peon.move(move.dir, move.speed);
     }
-
-    boss.move(dir,speed);
-}
-
-requestAnimationFrame(animate);
-
-function animate() {
-
-    moveboss('aggressive');
-
-    if (boss.didIntersect(man)){
-        man.die(stage);
-    }
-
-    renderer.render(stage);
-
-    requestAnimationFrame(animate);
-}
+};
 
 // Catch input from the user (keyboard)
 document.addEventListener('keydown', function(event) {
@@ -261,4 +283,20 @@ speak = function(actor,phrase){
     phrase.position.y = actor.position.y - 10;
     stage.addChild(phrase);
 };
+
+requestAnimationFrame(animate);
+
+function animate() {
+
+    movePeons('random');
+    moveboss('aggressive');
+
+    if (boss.didIntersect(man)){
+        man.die(stage);
+    }
+
+    renderer.render(stage);
+
+    requestAnimationFrame(animate);
+}
 
