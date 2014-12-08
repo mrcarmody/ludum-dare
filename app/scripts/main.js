@@ -277,6 +277,7 @@ movePeons = function() {
         peon.move(move.dir, move.speed);
 
         if (peon.didIntersect(man)){
+            stage.removeChild(man);
             location.reload();
         }
     }
@@ -394,6 +395,7 @@ function animate() {
     moveboss('aggressive');
 
     if (boss.didIntersect(man)){
+        stage.removeChild(man);
         location.reload();
     }
 
