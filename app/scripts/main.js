@@ -164,16 +164,54 @@ AIcallback = function(AI,actor,antagonist) {
     }
     
     return {dir:dir,speed:speed};
-}
+};
 // You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
 var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
-// You can use either PIXI.WebGLRenderer or PIXI.CanvasRenderer
-var renderer = new PIXI.autoDetectRenderer(stageSizeX, stageSizeY);
-
-document.body.appendChild(renderer.view);
 
 var stage = new PIXI.Stage;
-//var stage = new PIXI.Stage(0X86c1f4);
+var stage2 = new PIXI.Stage(0X86c1f4);
+
+var introTitle = new PIXI.Text("Get the Data!",{font:"30px Arial", fill:"#F1F6FC"});
+introTitle.position.x = 10;
+introTitle.position.y = 10;
+
+stage2.addChild(introTitle);
+
+var youTitle = new PIXI.Text("(:Radius Man:)",{font:"30px Arial", fill:"#F1F6FC"});
+youTitle.position.x = 10;
+youTitle.position.y = 100;
+
+stage2.addChild(youTitle);
+
+var bossTitle = new PIXI.Text("):Bad Data:(",{font:"30px Arial", fill:"#000000"});
+bossTitle.position.x = 350;
+bossTitle.position.y = 100;
+
+stage2.addChild(bossTitle);
+
+var peonTitle = new PIXI.Text("):His Minions:(",{font:"30px Arial", fill:"#000000"});
+peonTitle.position.x = 550;
+peonTitle.position.y = 150;
+
+stage2.addChild(peonTitle);
+
+var dataTitle = new PIXI.Text("The Data!!",{font:"30px Arial", fill:"#000000"});
+dataTitle.position.x = 350;
+dataTitle.position.y = 400;
+
+stage2.addChild(dataTitle);
+
+var introManTexture = PIXI.Texture.fromImage("images/radMan.png");
+var introMan = new PIXI.Sprite(introManTexture);
+
+introMan.position.x = 10;
+introMan.position.y = 45;
+
+introMan.scale.x = 0.17;
+introMan.scale.y = 0.17;
+
+stage2.addChild(introMan);
+
 
 var text = new PIXI.Text("Score: "+score,{font:"30px Arial", fill:"yellow"});
 text.position.x = 10;
@@ -233,7 +271,7 @@ movePeons = function() {
         peon.move(move.dir, move.speed);
 
         if (peon.didIntersect(man)){
-            man.die(stage);
+            location.reload();
         }
     }
 };
@@ -241,20 +279,6 @@ movePeons = function() {
 // Catch input from the user (keyboard)
 var map = [];
 mapKeys = function(e) {
-    var isShift;
-
-    if (window.event) {
-        key = window.event.keyCode;
-        isShift = window.event.shiftKey ? true : false;
-    } else {
-        key = e.which;
-        isShift = e.shiftKey ? true : false;
-    }
-
-    if (isShift) {
-        speed = speed * 2;
-    }
-
     e = e || event; // to deal with IE
     map[e.keyCode] = e.type == 'keydown';
 };
@@ -357,8 +381,6 @@ speak = function(actor,phrase){
     stage.addChild(phrase);
 };
 
-requestAnimationFrame(animate);
-
 function animate() {
 
     moveMan();
@@ -366,11 +388,28 @@ function animate() {
     moveboss('aggressive');
 
     if (boss.didIntersect(man)){
-        man.die(stage);
+        location.reload();
     }
 
     renderer.render(stage);
 
     requestAnimationFrame(animate);
 }
+
+function showIntroScreen() {
+    var dontcatch = false;
+    document.addEventListener('keydown', catchReturn);
+
+    function catchReturn(e) {
+        e = e || event; // to deal with IE
+        if (e.keyCode == 13 && ! dontcatch){
+            document.getElementById('intro').style.display = "none";
+            document.body.appendChild(renderer.view);
+            requestAnimationFrame(animate);
+            dontcatch = true;
+        }
+    }
+}
+
+showIntroScreen();
 
