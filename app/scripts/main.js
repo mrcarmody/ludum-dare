@@ -117,7 +117,13 @@ placeBoss = function() {
 
 updateScore = function() {
     score++;
-    text.setText("Score: "+score);
+    text.setText("Score: "+score*1000);
+    /*
+    var highscore = document.getElementById('highscore');
+    if (score*1000>highscore.innerText) {
+      highscore.innerText = score*1000;
+    }
+    */
 };
 
 AIcallback = function(AI,actor,antagonist) {
