@@ -325,69 +325,6 @@ moveMan = function() {
     }
 };
 
-/*
-// Catch input from the user (keyboard)
-document.addEventListener('keydown', function(event) {
-    var isShift;
-
-    if (window.event) {
-        key = window.event.keyCode;
-        isShift = window.event.shiftKey ? true : false;
-    } else {
-        key = event.which;
-        isShift = event.shiftKey ? true : false;
-    }
-
-    var speed = man.speed;
-    var dir = 'y';
-    if (isShift){
-        speed = speed * 2;
-    }
-
-
-    switch (event.keyCode) {
-        case 16:
-           return;
-        // left and right (or right and left???)
-        case 37:
-            dir = 'x';
-            speed = speed * -1;
-            break;
-        case 39:
-            dir = 'x';
-            break;
-        // Up arrow
-        case 38:
-            dir = 'y';
-            speed = speed * -1;
-            break;
-        // Down arrow
-        case 40:
-            dir = 'y';
-            break;
-        case 84:
-            speak(man,happyTalk[0]);
-            return;
-    }
-
-    man.move(dir,speed);
-    if (man.didIntersect(prize)){
-        updateScore();
-        man.speed += 5;
-        boss.die(stage);
-        stage.removeChild(prize);
-        placePrize();
-        placeBoss();
-    }
-});
-*/
-
-speak = function(actor,phrase){
-    phrase.position.x = actor.position.x + actor.width + 3;
-    phrase.position.y = actor.position.y - 10;
-    stage.addChild(phrase);
-};
-
 function animate() {
 
     moveMan();
